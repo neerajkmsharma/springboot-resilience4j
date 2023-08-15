@@ -1,0 +1,46 @@
+server:
+  port: 9090
+  shutdown: graceful
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 4m  
+  
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+resilience4j.retry:
+  instances:
+    simpleRetry:
+      maxAttempts: 2
+      waitDuration: 5s
+    retryOnException:
+      maxAttempts: 4
+      waitDuration: 3s
+      retryExceptions:
+        - org.springframework.web.client.HttpClientErrorException
+      ignoreExceptions:
+        - com.avinya.application.exception.ArticleNotFoundException
+    retryOnConditionalPredicate:
+      maxAttempts: 2
+      waitDuration: 5s
+      resultPredicate: com.avinya.application.util.ArticlePredicate
+    retryOnExceptionPredicate:
+      maxAttempts: 3
+      waitDuration: 4s
+      retryExceptionPredicate: com.avinya.application.util.ExceptionPredicate
+    retryUsingExponentialBackoff:
+      maxAttempts: 4
+      waitDuration: 2s
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+    retryUsingRandomizedWait:
+      maxAttempts: 4
+      waitDuration: 2s
+      enableRandomizedWait: true
+      randomizedWaitFactor: 0.6
+    retryWithEventDetails:
+      maxAttempts: 3
+      waitDuration: 5s
